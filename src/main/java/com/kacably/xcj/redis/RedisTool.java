@@ -14,6 +14,9 @@ import org.springframework.util.CollectionUtils;
 @Component
 public class RedisTool {
 
+    public static void main(String[] args) {
+
+    }
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
     /**

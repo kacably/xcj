@@ -1,4 +1,4 @@
-package com.kacably.xcj.mapper;
+package com.kacably.xcj.mapper.xcj;
 
 
 import com.kacably.xcj.bean.message.RegistRemindBean;

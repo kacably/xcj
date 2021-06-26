@@ -39,12 +39,12 @@ public class RabbitSender {
     };
 
     RabbitTemplate.ReturnCallback returnCallback = (message, replyCode, replyText, exchange, routingKey) -> {
-
+        //启动消息失败返回，比如路由不到队列时触发回调
         System.out.println(message);
-        System.err.println(replyCode);
-        System.err.println(replyText);
-        System.out.println(exchange);
-        System.out.println(routingKey);
+        System.err.println(replyCode); //原因code
+        System.err.println(replyText); //原因描述
+        System.out.println(exchange); //交换器
+        System.out.println(routingKey); //路由key
         System.out.println("=========================");
     };
 
@@ -56,6 +56,7 @@ public class RabbitSender {
      * @param routingKey 路由
      */
     public void send(Object message, Map<String,Object> properties, String exchange,String routingKey) throws JsonProcessingException {
+        System.out.println((String) properties.get("messageId") + "即将发送消息");
         //设置确认机制
         rabbitTemplate.setConfirmCallback(confirmCallback);
         //设置返回机制
@@ -71,6 +72,5 @@ public class RabbitSender {
         //发送消息
         rabbitTemplate.convertAndSend(exchange,routingKey,msg,correlationData);
     }
-
 
 }

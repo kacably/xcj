@@ -5,6 +5,7 @@ import com.kacably.xcj.bean.user.UserBaseInfoBean;
 import com.kacably.xcj.bean.user.UserVerifyBean;
 
 import java.util.List;
+import java.util.Map;
 
 public interface LoginService {
 
@@ -12,6 +13,8 @@ public interface LoginService {
 
 
     int findByUserName(String username);
+
+    UserBaseInfoBean findUserInfoByUserName(String username);
 
     int update(UserVerifyBean userVerifyBean);
 
@@ -21,5 +24,9 @@ public interface LoginService {
 
     int checkUsername(String username);
 
-    int toLogin(UserVerifyBean userVerifyBean);
+    Map<String, String> toLogin(UserVerifyBean userVerifyBean);
+
+    void updateCount(List<UserVerifyBean> list);
+
+    UserVerifyBean getAccountUser(String defaulsthash);
 }

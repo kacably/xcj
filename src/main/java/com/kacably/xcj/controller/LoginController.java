@@ -6,23 +6,30 @@ import com.kacably.xcj.bean.message.RegistRemindBean;
 import com.kacably.xcj.bean.user.UserBaseInfoBean;
 import com.kacably.xcj.bean.user.UserModel;
 import com.kacably.xcj.bean.user.UserVerifyBean;
+import com.kacably.xcj.bean.user.XcjData;
+import com.kacably.xcj.mapper.test.TestMapper;
+import com.kacably.xcj.nio.properties.TestMark;
 import com.kacably.xcj.service.LoginService;
+import com.kacably.xcj.tools.ExcelTool;
 import com.kacably.xcj.tools.RabbitSender;
 import com.kacably.xcj.tools.SecretTools;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.*;
 
 @Controller
+@CrossOrigin(allowCredentials="true")
 @RequestMapping("userlogin")
 public class LoginController {
 
@@ -34,6 +41,10 @@ public class LoginController {
 
     @Autowired
     RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    TestMapper testMapper;
+
 
     /**
      * 注册方法
@@ -57,10 +68,12 @@ public class LoginController {
      * 用户名是否存在
      * @return 0 不存在 其他存在
      */
-    @GetMapping("{username}")
+    @GetMapping("{username}/{type}")
     @ResponseBody
-    public int checkUsername(@PathVariable("username") String username){
+    public int checkUsername(@PathVariable String username,@PathVariable String type){
         int status = 0;
+        System.out.println(type);
+        System.out.println(username);
         status = loginService.checkUsername(username);
         return status;
     }
@@ -71,8 +84,25 @@ public class LoginController {
      */
     @GetMapping
     @ResponseBody
-    public Map getListGet(HttpServletRequest request){
+    public Map getListGet(HttpServletRequest request, HttpSession session){
         Map map = new HashMap();
+        UserVerifyBean userVerifyBean = new UserVerifyBean();
+        Cookie[] cookies = request.getCookies();
+        if (cookies == null){
+            return null;
+        }
+        System.err.println(session.getId());
+        for (Cookie cookie:cookies){
+            String name = cookie.getName();
+            System.err.println(name);
+            if (name.equals("JSESSIONID")){
+                userVerifyBean = loginService.getAccountUser(cookie.getValue());
+                if (userVerifyBean == null) return map;
+
+            }
+        }
+        System.out.println(userVerifyBean);
+        System.out.println(request.getSession().getId());
         /*String token = "";
         //通过cookies获取
         Cookie[] cookies = request.getCookies();
@@ -140,11 +170,17 @@ public class LoginController {
      */
     @PostMapping("login")
     @ResponseBody
-    public int toLogin(@RequestBody UserVerifyBean userVerifyBean){
-        int ststus = 0;
-        if (userVerifyBean == null) return ststus;
-        ststus = loginService.toLogin(userVerifyBean);
-        return ststus;
+    public XcjData toLogin(@RequestBody UserVerifyBean userVerifyBean, HttpServletRequest request, HttpServletResponse response){
+        System.out.println(request.getSession().getId());
+        XcjData xcjData = new XcjData();
+        if (userVerifyBean == null) return xcjData;
+        Map<String, String> loginCheck = loginService.toLogin(userVerifyBean);
+        if (loginCheck == null){
+            return xcjData;
+        }
+        xcjData.setResCode(Integer.parseInt(loginCheck.get("status")));
+        xcjData.setResData(loginCheck.get("token"));
+        return xcjData;
     }
 
 
@@ -181,5 +217,52 @@ public class LoginController {
             return SecretTools.encrtption(applyId);
         }
         return null;
+    }
+
+
+
+    @GetMapping("/excel/{id}")
+    public void excel(HttpServletResponse httpServletResponse, @PathVariable("id") String id) throws IOException {
+        List list = new ArrayList();
+        list.add("123");
+        list.add("extel");
+        list.add("fds");
+        List relist = new ArrayList();
+        relist.add(list);
+        ExcelTool.exportExcel(httpServletResponse,relist,"哈哈哈","测试",10);
+
+    }
+    @GetMapping("/test2")
+    @ResponseBody
+    public List<Map> getTest2(){
+        return testMapper.getList();
+    }
+
+    /**
+     * Decode the value using Base64.
+     * @param base64Value the Base64 String to decode
+     * @return the Base64 decoded value
+     * @since 1.2.2
+     */
+    private String base64Decode(String base64Value) {
+        try {
+            byte[] decodedCookieBytes = Base64.getDecoder().decode(base64Value);
+            return new String(decodedCookieBytes);
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    @GetMapping("/test3")
+    @ResponseBody
+    @Transactional
+    public void findByUserName(){
+        UserBaseInfoBean userBaseInfoBean = loginService.findUserInfoByUserName("李小白");
+        System.err.println(userBaseInfoBean.toString());
+        userBaseInfoBean.setHeight("188");
+        UserBaseInfoBean userBaseInfoBean2 = loginService.findUserInfoByUserName("李小白");
+        System.err.println(userBaseInfoBean2.toString());
+
     }
 }

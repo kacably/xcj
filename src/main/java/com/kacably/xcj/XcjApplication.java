@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
 @EnableScheduling
-@MapperScan("com.kacably.xcj.mapper")
+//@MapperScan("com.kacably.xcj.mapper")
 public class XcjApplication {
 
     public static void main(String[] args) {

@@ -1,12 +1,13 @@
 package com.kacably.xcj.bean.user;
 
+import com.fasterxml.jackson.databind.ser.std.SerializableSerializer;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
-public class UserBaseInfoBean implements Serializable {
+public class UserBaseInfoBean implements Serializable,Cloneable {
 
     //主键
     private int id;
@@ -24,4 +25,24 @@ public class UserBaseInfoBean implements Serializable {
     private String sexDesc;
     //生日
     private Date birth;
+    //身高
+    private String height;
+    //yes
+    private String yes;
+    //帅
+    private String goodlike;
+    //钱
+    private String money;
+    //头像
+    private String iamgeBase64;
+    //学历
+    private String xveli;
+    //学号
+    private String sid;
+
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+         return super.clone();
+    }
 }

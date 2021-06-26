@@ -40,6 +40,7 @@ public class RedisConfig extends CachingConfigurerSupport {
         // 指定序列化输入的类型，类必须是非final修饰的，final修饰的类，比如String,Integer等会跑出异常
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
         jackson2JsonRedisSerializer.setObjectMapper(mapper);
+
         template.setValueSerializer(jackson2JsonRedisSerializer);
 
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();

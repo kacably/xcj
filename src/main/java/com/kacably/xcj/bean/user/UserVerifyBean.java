@@ -23,4 +23,6 @@ public class UserVerifyBean {
     private Date lastUpdateTime;
     //是否已经登录
     private String haveLogined;
+    //注册时长
+    private String registerfordays;
 }
