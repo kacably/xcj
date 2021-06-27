@@ -70,7 +70,8 @@ public class LoginController {
      */
     @GetMapping("{username}/{type}")
     @ResponseBody
-    public int checkUsername(@PathVariable String username,@PathVariable String type){
+    public int checkUsername(@PathVariable String username,@PathVariable String type, HttpSession session) {
+        System.out.println(session.getId());
         int status = 0;
         System.out.println(type);
         System.out.println(username);
