@@ -1,8 +1,10 @@
 package com.kacably.xcj.service;
 
 
+import com.kacably.xcj.bean.Page;
 import com.kacably.xcj.bean.user.UserBaseInfoBean;
 import com.kacably.xcj.bean.user.UserVerifyBean;
+import org.apache.ibatis.session.RowBounds;
 
 import java.util.List;
 import java.util.Map;
@@ -29,4 +31,7 @@ public interface LoginService {
     void updateCount(List<UserVerifyBean> list);
 
     UserVerifyBean getAccountUser(String defaulsthash);
+
+    Page<UserBaseInfoBean> getListRowBounds(RowBounds rowBounds);
+
 }

@@ -1,5 +1,6 @@
 package com.kacably.xcj.service.impl;
 
+import com.kacably.xcj.bean.Page;
 import com.kacably.xcj.bean.message.RegistRemindBean;
 import com.kacably.xcj.bean.user.UserBaseInfoBean;
 import com.kacably.xcj.bean.user.UserVerifyBean;
@@ -13,13 +14,11 @@ import com.kacably.xcj.tools.DateTool;
 import com.kacably.xcj.tools.RabbitSender;
 import com.kacably.xcj.tools.SecretTools;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.xml.crypto.Data;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +41,11 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public UserVerifyBean getAccountUser(String defaulsthash) {
         return (UserVerifyBean) redisTemplate.opsForValue().get(defaulsthash);
+    }
+
+    @Override
+    public Page<UserBaseInfoBean> getListRowBounds(RowBounds rowBounds) {
+        return userBaseInfoMapper.getListRowBounds(rowBounds);
     }
 
     @Override

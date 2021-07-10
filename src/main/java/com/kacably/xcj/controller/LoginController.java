@@ -2,20 +2,20 @@ package com.kacably.xcj.controller;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kacably.xcj.bean.Page;
 import com.kacably.xcj.bean.message.RegistRemindBean;
 import com.kacably.xcj.bean.user.UserBaseInfoBean;
 import com.kacably.xcj.bean.user.UserModel;
 import com.kacably.xcj.bean.user.UserVerifyBean;
 import com.kacably.xcj.bean.user.XcjData;
 import com.kacably.xcj.mapper.test.TestMapper;
-import com.kacably.xcj.nio.properties.TestMark;
 import com.kacably.xcj.service.LoginService;
 import com.kacably.xcj.tools.ExcelTool;
 import com.kacably.xcj.tools.RabbitSender;
 import com.kacably.xcj.tools.SecretTools;
+import org.apache.ibatis.session.RowBounds;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -87,8 +87,8 @@ public class LoginController {
     @ResponseBody
     public Map getListGet(HttpServletRequest request, HttpSession session){
         Map map = new HashMap();
-        UserVerifyBean userVerifyBean = new UserVerifyBean();
-        Cookie[] cookies = request.getCookies();
+        //UserVerifyBean userVerifyBean = new UserVerifyBean();
+        /*Cookie[] cookies = request.getCookies();
         if (cookies == null){
             return null;
         }
@@ -97,13 +97,14 @@ public class LoginController {
             String name = cookie.getName();
             System.err.println(name);
             if (name.equals("JSESSIONID")){
+                System.err.println(cookie.getValue());
                 userVerifyBean = loginService.getAccountUser(cookie.getValue());
                 if (userVerifyBean == null) return map;
 
             }
         }
         System.out.println(userVerifyBean);
-        System.out.println(request.getSession().getId());
+        System.out.println(request.getSession().getId());*/
         /*String token = "";
         //通过cookies获取
         Cookie[] cookies = request.getCookies();
@@ -125,12 +126,15 @@ public class LoginController {
             return map;
         }*/
         String status = "0";
-        List<UserBaseInfoBean> list = loginService.getList();
-        if (list != null){
+        int pageNo = 1;
+        int pageSize = 10;
+        RowBounds bounds = new RowBounds((pageNo - 1) * pageSize, pageSize);
+        Page<UserBaseInfoBean> pageData = loginService.getListRowBounds(bounds);
+        if (pageData != null){
             status = "1";
         }
         map.put("status",status);
-        map.put("data",list);
+        map.put("data",pageData);
         return map;
     }
 
@@ -179,6 +183,16 @@ public class LoginController {
         if (loginCheck == null){
             return xcjData;
         }
+
+        Cookie[] cookies = request.getCookies();//这样便可以获取一个cookie数组
+        if (null==cookies) {
+            System.out.println("没有cookie=========");
+            Cookie cookie = new Cookie("JSESSIONID", request.getSession().getId());
+            cookie.setMaxAge(60 * 60);// 设置为60min
+            cookie.setPath("/");
+            response.addCookie(cookie);
+        }
+
         xcjData.setResCode(Integer.parseInt(loginCheck.get("status")));
         xcjData.setResData(loginCheck.get("token"));
         return xcjData;
